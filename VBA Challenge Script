@@ -1,0 +1,114 @@
+
+Sub StockData()
+    Dim ws As Worksheet
+    Dim s As Long
+    Dim c As Long
+    Dim L As Long
+    Dim t As String
+    Dim i As Long
+    Dim openingp As Double
+    Dim closingp As Double
+    Dim yearlyc As Double
+    Dim percentc As Double
+    Dim volume As Double
+ 
+    Dim maxIncrease As Double
+    Dim maxDecrease As Double
+    Dim maxVolume As Double
+    Dim stockWithMaxIncrease As String
+    Dim stockWithMaxDecrease As String
+    Dim stockWithMaxVolume As String
+    
+    For Each ws In Worksheets
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        
+        L = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        
+        c = 2
+        volume = 0
+        maxVolume = 0
+        
+        For i = 2 To L
+            If ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+                If i > 2 Then
+                    yearlyc = closingp - openingp
+                    percentc = yearlyc / openingp
+                    ws.Cells(c, 10).Value = yearlyc
+                    ws.Cells(c, 11).Value = Format(percentc, "0.00%")
+                    
+                    If yearlyc < 0 Then
+                        ws.Cells(c, 10).Interior.ColorIndex = 3
+                    Else
+                        ws.Cells(c, 10).Interior.ColorIndex = 4
+                    End If
+                    
+                    ws.Cells(c, 12).Value = volume
+                    
+                    If percentc > maxIncrease Then
+                        maxIncrease = percentc
+                        stockWithMaxIncrease = ws.Cells(i - 1, 1).Value
+                    End If
+                    
+                    If percentc < maxDecrease Then
+                        maxDecrease = percentc
+                        stockWithMaxDecrease = ws.Cells(i - 1, 1).Value
+                    End If
+                    
+                    If volume > maxVolume Then
+                        maxVolume = volume
+                        stockWithMaxVolume = ws.Cells(i - 1, 1).Value
+                    End If
+                    
+                    c = c + 1
+                    volume = 0
+                End If
+                
+                t = ws.Cells(i, 1).Value
+                openingp = ws.Cells(i, 3).Value
+                
+                ws.Cells(c, 9).Value = t
+                
+                volume = ws.Cells(i, 7).Value
+                
+            End If
+            
+            closingp = ws.Cells(i, 6).Value
+            
+            volume = volume + ws.Cells(i, 7).Value
+            
+            If volume > maxVolume Then
+                maxVolume = volume
+                stockWithMaxVolume = ws.Cells(i, 1).Value
+            End If
+        Next i
+        
+        yearlyc = closingp - openingp
+        percentc = yearlyc / openingp
+        ws.Cells(c, 10).Value = yearlyc
+        ws.Cells(c, 11).Value = Format(percentc, "0.00%")
+        
+        If yearlyc < 0 Then
+            ws.Cells(c, 10).Interior.ColorIndex = 3
+        Else
+            ws.Cells(c, 10).Interior.ColorIndex = 4
+        End If
+        
+        ws.Cells(c, 12).Value = volume
+        
+        ws.Cells(2, 16).Value = stockWithMaxIncrease
+        ws.Cells(3, 16).Value = stockWithMaxDecrease
+        ws.Cells(4, 16).Value = stockWithMaxVolume
+
+        ws.Cells(2, 17).Value = Format(maxIncrease, "0.00%")
+        ws.Cells(3, 17).Value = Format(maxDecrease, "0.00%")
+        ws.Cells(4, 17).Value = maxVolume
+    Next ws
+End Sub
